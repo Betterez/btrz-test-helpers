@@ -1,0 +1,28 @@
+{
+  "name": "btrz-test-helpers",
+  "version": "1.0.0",
+  "description": "Some cool helpers to improve testing in betterez",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha --recursive test/**/*.test.js",
+    "preversion": "npm test",
+    "postversion": "git push origin master && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Betterez/btrz-test-helpers.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Betterez/btrz-test-helpers/issues"
+  },
+  "homepage": "https://github.com/Betterez/btrz-test-helpers#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  }
+}
