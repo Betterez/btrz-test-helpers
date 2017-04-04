@@ -13,7 +13,7 @@ describe("expectAsync()", function() {
     cb();
   });
 
-  it("should make test fail and inform error when not assertion error", function(done) {
+  it("should make test fail and inform error when assertion error", function(done) {
     const beforeDone = expectAsync(done, (err) => {
       if(!err) {
         throw new Error("There should be an error here!")
