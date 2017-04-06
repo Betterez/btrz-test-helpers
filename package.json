@@ -4,7 +4,8 @@
   "description": "Some cool helpers to improve testing in betterez",
   "main": "index.js",
   "directories": {
-    "test": "test"
+    "test": "test",
+    "publish": "publish"
   },
   "scripts": {
     "test": "mocha --recursive test/**/*.test.js",
@@ -23,6 +24,7 @@
   "homepage": "https://github.com/Betterez/btrz-test-helpers#readme",
   "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "publish": "^0.6.0"
   }
 }
