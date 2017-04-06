@@ -4,13 +4,13 @@
   "description": "Some cool helpers to improve testing in betterez",
   "main": "index.js",
   "directories": {
-    "test": "test",
-    "publish": "publish"
+    "test": "test"
   },
   "scripts": {
     "test": "mocha --recursive test/**/*.test.js",
     "preversion": "npm test",
-    "postversion": "git push origin master && git push --tags"
+    "postversion": "git push origin master && git push --tags",
+    "publish": "publish"
   },
   "repository": {
     "type": "git",
