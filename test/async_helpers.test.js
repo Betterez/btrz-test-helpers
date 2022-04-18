@@ -40,8 +40,10 @@ describe("delay()", function() {
   });
 
   it("should not resolve the promise before n milliseconds", function(done) {
-    delay(100).then(() => done("Promise resolved first, error!"));
-    setTimeout(done, 90);
+    Promise.race([
+      delay(100).then(() => done("Promise resolved first, error!")),
+      setTimeout(done, 90)
+    ]);    
   });
 
 });
