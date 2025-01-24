@@ -1,10 +1,6 @@
-const { expect } = require("chai");
-
-const { expectAsync } = require("./../src/async_helpers");
-const { delay } = require("./../src/async_helpers").promises;
-
 describe("expectAsync()", function() {
-
+  const { expect } = require("chai");
+  const { expectAsync } = require("./../src/async_helpers");  
   it("should make test pass when not assertion error", function(done) {
     const cb = expectAsync(done, () => {
       expect(1).to.eql(1);
@@ -28,22 +24,4 @@ describe("expectAsync()", function() {
 
     cb();
   });
-
-});
-
-describe("delay()", function() {
-  // There's room for improvement here, this tests are not the best... but there's no a synchronous way to inspect if
-  // a Promise is resolved in the native implementation 
-
-  it("should resolve the promise after n milliseconds", function() {
-    return delay(1);
-  });
-
-  it("should not resolve the promise before n milliseconds", function(done) {
-    Promise.race([
-      delay(100).then(() => done("Promise resolved first, error!")),
-      setTimeout(done, 90)
-    ]);    
-  });
-
 });

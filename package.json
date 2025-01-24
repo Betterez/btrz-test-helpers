@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --recursive test/**/*.test.js",
+    "tdd": "mocha --recursive test/**/*.test.js --watch",
     "postversion": "git push origin master && git push --tags"
   },
   "repository": {
@@ -18,7 +19,10 @@
   },
   "homepage": "https://github.com/Betterez/btrz-test-helpers#readme",
   "devDependencies": {
-    "chai": "4.3.4",
-    "mocha": "9.1.2"
+    "chai": "4.3.7",
+    "mocha": "11.1.0"
+  },
+  "dependencies": {
+    "test-console": "^2.0.0"
   }
 }
