@@ -11,7 +11,6 @@ module.exports = {
         return this.inspect.output;
       },
       get(KEY, indexOffset = 0) {
-        console.log("indexOffset", indexOffset);
         const index = ((this.inspect || {}).output || [])
           .findIndex((line) => {
             return line.indexOf(KEY) === 0;
