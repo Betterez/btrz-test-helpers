@@ -4,8 +4,8 @@
   "description": "Some cool helpers to improve testing in betterez",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --recursive test/**/*.test.js",
-    "tdd": "mocha --recursive test/**/*.test.js --watch",
+    "test": "node --test test/*.test.js",
+    "tdd": "node --test --watch test/*.test.js",
     "postversion": "git push origin master && git push --tags"
   },
   "repository": {
@@ -18,10 +18,6 @@
     "url": "https://github.com/Betterez/btrz-test-helpers/issues"
   },
   "homepage": "https://github.com/Betterez/btrz-test-helpers#readme",
-  "devDependencies": {
-    "chai": "4.3.7",
-    "mocha": "11.1.0"
-  },
   "dependencies": {
     "test-console": "^2.0.0"
   }

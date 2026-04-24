@@ -1,27 +1,35 @@
-describe("expectAsync()", function() {
-  const { expect } = require("chai");
-  const { expectAsync } = require("./../src/async_helpers");  
-  it("should make test pass when not assertion error", function(done) {
-    const cb = expectAsync(done, () => {
-      expect(1).to.eql(1);
-    });
+const assert = require("node:assert/strict");
+const { describe, it } = require("node:test");
+const { expectAsync } = require("./../src/async_helpers");
 
-    cb();
+describe("expectAsync()", () => {
+  it("should make test pass when not assertion error", async () => {
+    await new Promise((resolve, reject) => {
+      const cb = expectAsync((err) => (err ? reject(err) : resolve()), () => {
+        assert.equal(1, 1);
+      });
+
+      cb();
+    });
   });
 
-  it("should make test fail and inform error when assertion error", function(done) {
-    const beforeDone = expectAsync(done, (err) => {
-      if(!err) {
-        throw new Error("There should be an error here!")
-      } else {
-        expect(err.message).to.eql("expected 1 to deeply equal 2");
-      }
-    })
+  it("should make test fail and inform error when assertion error", async () => {
+    await new Promise((resolve, reject) => {
+      const beforeDone = (err) => {
+        try {
+          assert.ok(err, "There should be an error here!");
+          assert.match(err.message, /1 !== 2/);
+          resolve();
+        } catch (assertionError) {
+          reject(assertionError);
+        }
+      };
 
-    const cb = expectAsync(beforeDone, () => {
-      expect(1).to.eql(2);
+      const cb = expectAsync(beforeDone, () => {
+        assert.equal(1, 2);
+      });
+
+      cb();
     });
-
-    cb();
   });
 });

@@ -1,14 +1,15 @@
-describe("Console mock", () => {
-  const {expect} = require("chai");
+const assert = require("node:assert/strict");
+const { describe, it } = require("node:test");
 
+describe("Console mock", () => {
   it("should return an object that mocks the console", () => {
     const {consoleMock} = require("../index.js");
     const mock = consoleMock.setup();
     mock.restore();
-    expect(mock.haha).to.be.undefined;
-    expect(mock.restore).to.not.eql(undefined);
-    expect(mock.get).to.not.eql(undefined);
-    expect(mock.getJSON).to.not.eql(undefined);
+    assert.equal(mock.haha, undefined);
+    assert.notEqual(mock.restore, undefined);
+    assert.notEqual(mock.get, undefined);
+    assert.notEqual(mock.getJSON, undefined);
   });
 
   it("should return the output of the console", () => {
@@ -16,7 +17,7 @@ describe("Console mock", () => {
     const mock = consoleMock.setup();
     console.log("Hello world!");
     const output = mock.restore();
-    expect(output).to.eql(["Hello world!\n"]);
+    assert.deepEqual(output, ["Hello world!\n"]);
   });
 
   it("should return the output of the console with multiple logs", () => {
@@ -25,7 +26,7 @@ describe("Console mock", () => {
     console.log("Hello world!");
     console.log("Hello world!");
     const output = mock.restore();
-    expect(output).to.eql(["Hello world!\n", "Hello world!\n"]);
+    assert.deepEqual(output, ["Hello world!\n", "Hello world!\n"]);
   });
 
   it("should return the output of the given matching string", () => {
@@ -36,7 +37,7 @@ describe("Console mock", () => {
     console.log("Hello Webhook!");
     mock.restore();
     const result = mock.get("WHE-PRE")
-    expect(result).to.eql("WHE-PRE\n");
+    assert.equal(result, "WHE-PRE\n");
   });
 
   it("should return the output of the given matching string with index offset", () => {
@@ -47,7 +48,7 @@ describe("Console mock", () => {
     console.log("Hello Webhook!");
     mock.restore();
     const result = mock.get("WHE-PRE", 1)
-    expect(result).to.eql("Hello Webhook!\n");
+    assert.equal(result, "Hello Webhook!\n");
   });
 
   it("should return the output of the given matching string as JSON", () => {
@@ -59,6 +60,6 @@ describe("Console mock", () => {
     console.log("Hello Webhook!");
     mock.restore();
     const result = mock.getJSON("PRE", 1)
-    expect(result).to.eql({name: "John"});
+    assert.deepEqual(result, {name: "John"});
   });
 });
