@@ -1,72 +1,19 @@
-function setNotLoggedIn(req) {
-  req.session.account = "";
-  req.session.cookie = {};
-  req.currentUser = undefined;
-  req.currentAccount = undefined;
-}
+const helpers = require("./tests_helpers");
+const {Chance} = require("chance");
+const chance = new Chance();
+const sinon = require("sinon");
+const mockAccountsHelper = require("./accounts_helpers.js");
 
-function getDb() {
-  return global.simpleDaoMongoDbConnection;
-}
-
-function getNewAccount(chance = null) {
-  return {
-    name: chance.word(),
-    domain: "unit.tests",
-    email: chance.email(),
-    password: "1234567p",
-    confirmPassword: "1234567p"
-  };
-}
-
-function getDefaultConnection(options, chance = null) {
-  if (options && options.connection) {
-    return options.connection;
-  }
-  return {
-    remoteAddress: chance.ip()
-  };
-}
-
-function getDefaultUser(options, sinon = null, chance = null) {
-  if (options && options.user !== undefined) {
-    return options.user;
-  }
-
-  return {
-    _id: "7a18df8b020b3f24e3b6fd71",
-    display: chance.word(),
-    email: chance.email(),
-    defaultMenu: "",
-    language: "en-us",
-    is() { return false; },
-    canRead: sinon.stub().returns(true),
-    canCreate: sinon.stub().returns(true),
-    canUpdate: sinon.stub().returns(true),
-    canDelete: sinon.stub().returns(true),
-    hasShift() { return false; }
-  };
-}
-
-function getDefaultAccount(options, chance = null) {
-  if (options && options.account !== undefined) {
-    return options.account;
-  }
-  const account = getNewAccount(chance);
-  account._id = options && options.accountId ? options.accountId : chance.hash({length: 24});
-  return account;
-}
-
-function getHttpResponse(sinon = null) {
+function getHttpResponse() {
   const res = {
     viewModel: {},
-    view: sinon ? sinon.stub() : function () {},
+    view: sinon.stub(),
     noCacheView() {},
     set() {},
     write() {},
-    send: sinon ? sinon.stub() : function () {},
+    send: sinon.stub(),
     end() {},
-    json: sinon ? sinon.stub() : function () {},
+    json: sinon.stub(),
     header() {},
     redirect() {},
     app: {
@@ -98,7 +45,7 @@ function getHttpResponse(sinon = null) {
     redirectToMain() {}
   };
 
-  res.status = sinon ? sinon.stub().callsFake(() => {
+  res.status = sinon.stub().callsFake(() => {
     return {
       send(...args) {
         return res.send(...args);
@@ -110,45 +57,105 @@ function getHttpResponse(sinon = null) {
         return res.json(...args);
       }
     };
-  }) : function () {};
+  });
 
   return res;
 }
 
-function getHttpRequest(options = {}, sinon = null, chance = null) {
-  const account = getDefaultAccount(options, chance);
-  const user = getDefaultUser(options, sinon, chance);
+function getDefaultUser(options) {
+  if (options && options.user !== undefined) {
+    return options.user;
+  }
+
+  return {
+    _id: "7a18df8b020b3f24e3b6fd71",
+    display: chance.word(),
+    email: chance.email(),
+    defaultMenu: "",
+    language: "en-us",
+    is() { return false; },
+    canRead: sinon.stub().returns(true),
+    canCreate: sinon.stub().returns(true),
+    canUpdate: sinon.stub().returns(true),
+    canDelete: sinon.stub().returns(true),
+    hasShift() { return false; }
+  };
+}
+
+async function getDefaultAccount(accountModel, options) {
+  if (options && options.account !== undefined) {
+    return options.account;
+  }
+
+  const account = accountModel.create(mockAccountsHelper.getNewAccount());
+  account._id = options && options.accountId ? options.accountId : chance.hash({length: 24});
+  return account;
+}
+
+function getConfig(options) {
+  if (options && options.config !== undefined) {
+    return options.config;
+  }
+
+  return null;
+}
+
+function getLogger(options) {
+  if (options && options.logger) {
+    return options.logger;
+  }
+
+  return helpers.fakeLogger;
+}
+
+function getDefaultConnection(options) {
+  if (options && options.connection) {
+    return options.connection;
+  }
+  return {
+    remoteAddress: chance.ip()
+  };
+}
+
+function setNotLoggedIn(req) {
+  req.session.account = "";
+  req.session.cookie = {};
+  req.currentUser = undefined;
+  req.currentAccount = undefined;
+}
+
+async function getHttpRequest(options = {}) {
+  const db = await helpers.getDb();
+  const account = await getDefaultAccount(options.accountModel, options);
+  const user = getDefaultUser(options);
   return {
     "x-forwarded-proto": options && options.overSsl ? "https" : "http",
     "x-forwarded-port": options && options.overSsl ? "443" : "80",
     "x-forwarded-for": "12.34.56.78",
-    connection: getDefaultConnection(options, chance),
+    connection: getDefaultConnection(options),
     method: options && options.method ? options.method : "GET",
     host: options && options.host ? options.host : "localhost",
     url: options && options.url ? options.url : "/about",
     routePath: options && options.routePath ? options.routePath : "/about",
-    flash: options && options.flash ? options.flash : function () {},
+    flash: options && options.flash ? options.flash : function _inner() {},
     headers: {host: "", "user-agent": "Mozilla /5.0 (Ubuntu)"},
     app: {
       lexicon: {},
-      logger: options.logger || {
-        info() {},
-        error() {}
-      },
-      mongoDb: options.mongoDb || getDb(),
-      reportsDb: getDb(),
-      CONFIG: options.config || {},
+      logger: getLogger(options),
+      mongoDb: options.mongoDb || db,
+      reportsDb: db,
+      CONFIG: getConfig(options),
       cache: {
-        get(key, cb) { if (cb) { cb(null, null); } },
-        set(key, obj, cb) { if (cb && cb.apply) { cb(null, obj); } },
-        remove(key, cb) { if (cb) { cb(null, 1); } }
+        get(key, cb) { if (cb) { return cb(null, null); } },
+        set(key, obj, cb) { if (cb && cb.apply) { return cb(null, obj); } },
+        remove(key, cb) { if (cb) { return cb(null, 1); } }
       },
       lexiconCache: {
         get(key, cb) { if (cb) { cb(null, null); } },
         set(key, obj, cb) { if (cb && cb.apply) { cb(null, obj); } },
         remove(key, cb) { if (cb) { cb(null, 1); } }
       },
-      apiClient: options.apiClient || {}
+      apiClient: options && options.apiClient ? options.apiClient : helpers.getApiClient(getConfig(options), options.apiClient)
     },
     currentAccount: account,
     currencySymbol: "$",
