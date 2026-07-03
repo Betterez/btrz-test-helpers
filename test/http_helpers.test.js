@@ -14,7 +14,7 @@ const chanceMock = {
   ip() { return "127.0.0.1"; }
 };
 
-const sinonMock = {
+const mockToolkit = {
   stub() {
     const stubbed = function () {
       return stubbed._returnValue;
@@ -65,8 +65,8 @@ describe("http_helpers", () => {
       assert.ok("cache" in res.app);
     });
 
-    it("when given sinon, status() returns object with send that delegates to res.send", () => {
-      const res = getHttpResponse(sinonMock);
+    it("status() returns object with send that delegates to res.send", () => {
+      const res = getHttpResponse(mockToolkit);
       const sent = [];
       res.send = (x) => sent.push(x);
       res.status(500).send("error");

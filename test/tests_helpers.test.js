@@ -1,6 +1,5 @@
 const assert = require("node:assert/strict");
-const {describe, it, afterEach} = require("node:test");
-const sinon = require("sinon");
+const {describe, it, afterEach, mock} = require("node:test");
 const {SimpleDao} = require("btrz-simple-dao");
 const {
   getRandomIntUpTo,
@@ -33,11 +32,11 @@ describe("tests_helpers", () => {
   });
 
   it("getRandomIntUpTo returns floored value under limit", () => {
-    const randomStub = sinon.stub(Math, "random").returns(0.79);
+    const randomStub = mock.method(Math, "random", () => 0.79);
     try {
       assert.equal(getRandomIntUpTo(10), 7);
     } finally {
-      randomStub.restore();
+      randomStub.mock.restore();
     }
   });
 
@@ -132,7 +131,7 @@ describe("tests_helpers", () => {
     let askedCollection = null;
     let savedObject = null;
     const simpleDao = new SimpleDao({db: getMongoConfig()});
-    const connectStub = sinon.stub(simpleDao, "connect").resolves({
+    const connectStub = mock.method(simpleDao, "connect", async () => ({
       collection(name) {
         askedCollection = name;
         return {
@@ -142,15 +141,15 @@ describe("tests_helpers", () => {
           }
         };
       }
-    });
+    }));
 
     const result = await saveWithSimpleDao(simpleDao, "items", obj);
 
-    assert.equal(connectStub.calledOnce, true);
+    assert.equal(connectStub.mock.callCount(), 1);
     assert.equal(askedCollection, "items");
     assert.equal(savedObject, obj);
     assert.equal(result, obj);
-    connectStub.restore();
+    connectStub.mock.restore();
   });
 
   it("getFixtures loads all collections and calls callback", async () => {

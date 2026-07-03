@@ -1,19 +1,42 @@
 const helpers = require("./tests_helpers");
 const {Chance} = require("chance");
+const {mock} = require("node:test");
 const chance = new Chance();
-const sinon = require("sinon");
 const mockAccountsHelper = require("./accounts_helpers.js");
+
+function createStub(impl = () => undefined) {
+  const stub = mock.fn(impl);
+  Object.defineProperty(stub, "callCount", {
+    get() {
+      return stub.mock.callCount();
+    }
+  });
+  Object.defineProperty(stub, "args", {
+    get() {
+      return stub.mock.calls.map((call) => call.arguments);
+    }
+  });
+  stub.callsFake = (nextImpl) => {
+    stub.mock.mockImplementation(nextImpl);
+    return stub;
+  };
+  stub.returns = (value) => {
+    stub.mock.mockImplementation(() => value);
+    return stub;
+  };
+  return stub;
+}
 
 function getHttpResponse() {
   const res = {
     viewModel: {},
-    view: sinon.stub(),
+    view: createStub(),
     noCacheView() {},
     set() {},
     write() {},
-    send: sinon.stub(),
+    send: createStub(),
     end() {},
-    json: sinon.stub(),
+    json: createStub(),
     header() {},
     redirect() {},
     app: {
@@ -45,7 +68,7 @@ function getHttpResponse() {
     redirectToMain() {}
   };
 
-  res.status = sinon.stub().callsFake(() => {
+  res.status = createStub().callsFake(() => {
     return {
       send(...args) {
         return res.send(...args);
@@ -74,10 +97,10 @@ function getDefaultUser(options) {
     defaultMenu: "",
     language: "en-us",
     is() { return false; },
-    canRead: sinon.stub().returns(true),
-    canCreate: sinon.stub().returns(true),
-    canUpdate: sinon.stub().returns(true),
-    canDelete: sinon.stub().returns(true),
+    canRead: createStub().returns(true),
+    canCreate: createStub().returns(true),
+    canUpdate: createStub().returns(true),
+    canDelete: createStub().returns(true),
     hasShift() { return false; }
   };
 }
